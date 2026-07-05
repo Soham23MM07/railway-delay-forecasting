@@ -1,0 +1,41 @@
+FINAL METRICS AUDIT (parsed from frozen reports only)
+
+  [OK] XGB frozen in V2 report: (18.37, 53.65, 0.832) vs (18.37, 53.65, 0.832)
+  [OK] XGB frozen in dense report: (18.37, 53.65, 0.832) vs (18.37, 53.65, 0.832)
+  [OK] V1 frozen in V2 report: (19.34, 55.32, 0.8213) vs (19.34, 55.32, 0.8213)
+  [OK] V1 frozen in dense report: (19.34, 55.32, 0.8213) vs (19.34, 55.32, 0.8213)
+  [OK] V2 frozen in dense report: (18.79, 53.54, 0.8327) vs (18.79, 53.54, 0.8327)
+  [OK] naive arrival in V1 report: (26.28, 56.01, 0.8169) vs (26.28, 56.01, 0.8169)
+  [OK] naive arrival in V2 report: (26.28, 56.01, 0.8169) vs (26.28, 56.01, 0.8169)
+  [OK] naive arrival in dense report: (26.28, 56.01, 0.8169) vs (26.28, 56.01, 0.8169)
+  [OK] naive departure in V1 report: (28.98, 56.3, 0.815) vs (28.98, 56.3, 0.815)
+  [OK] frozen table Naive arrival: report=(26.28, 56.01, 0.8169) expected=(26.28, 56.01, 0.817)
+  [OK] frozen table Naive departure: report=(28.98, 56.3, 0.815) expected=(28.98, 56.3, 0.815)
+  [OK] frozen table Dense-only: report=(19.64, 54.56, 0.8262) expected=(19.64, 54.56, 0.8262)
+  [OK] frozen table LSTM V1: report=(19.34, 55.32, 0.8213) expected=(19.34, 55.32, 0.8213)
+  [OK] frozen table LSTM V2: report=(18.79, 53.54, 0.8327) expected=(18.79, 53.54, 0.8327)
+  [OK] frozen table XGBoost: report=(18.37, 53.65, 0.832) expected=(18.37, 53.65, 0.832)
+  [OK] 796 journeys (prep)
+  [OK] 13844 rows (prep)
+  [OK] 0 target mismatches (prep)
+  [OK] assertions passed (prep)
+  [OK] split sizes 557/119/120
+  [OK] zero split overlap
+  [OK] 20/20 train coverage
+
+canonical test metrics (MAE, RMSE, R2):
+  Naive arrival    (26.28, 56.01, 0.8169)
+  Naive departure  (28.98, 56.3, 0.815)
+  XGBoost          (18.37, 53.65, 0.832)
+  LSTM V1          (19.34, 55.32, 0.8213)
+  LSTM V2          (18.79, 53.54, 0.8327)
+  Dense-only       (19.64, 54.56, 0.8262)
+
+test bucket MAE:
+         Naive arrival  XGBoost    LSTM V1  LSTM V2  Dense-only
+index                                                          
+0-20%            28.87    24.35  25.639999    25.74   26.209999
+20-40%           31.91    24.34  23.629999    24.85   26.180000
+40-60%           25.63    17.87  18.510000    18.27   18.400000
+60-80%           24.67    15.37  15.640000    13.93   15.710000
+80-100%          18.60     6.98  10.770000     8.21    8.800000

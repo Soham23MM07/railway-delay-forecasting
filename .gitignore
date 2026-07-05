@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# virtual environments
+.venv/
+venv/
+env/
+
+# secrets / local environment
+.env
+.env.*
+*.key
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ML artifacts / experiment tracking
+models/
+mlruns/
+logs/
+*.pkl
+*.pt
+*.keras
+*.h5
+
+# datasets: CSVs collected from the RailRadar API are NOT redistributed
+# (see README data policy). The frozen text reports and the frozen
+# journey-split assignment ARE tracked as experiment evidence.
+data/**/*.csv
+!data/processed/journey_split.csv
+src/data/

@@ -1,0 +1,18 @@
+# Core (preprocessing, split, XGBoost, analysis)
+numpy>=1.26,<3
+pandas>=2.0,<3
+scikit-learn>=1.3,<2
+xgboost>=2.0
+matplotlib>=3.8
+
+# Deep learning: models are written with the KERAS 3 API and run on the
+# PyTorch backend (KERAS_BACKEND=torch, set inside the training scripts).
+# TensorFlow is NOT required. Frozen experiments used keras 3.15 / torch 2.8.
+keras>=3.5
+torch>=2.1
+
+# Data collection only (RailRadar API scraper)
+requests>=2.31
+
+# Exploratory notebooks only
+seaborn>=0.13

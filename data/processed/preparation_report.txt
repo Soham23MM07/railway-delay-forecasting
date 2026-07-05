@@ -1,0 +1,49 @@
+PREPARATION REPORT - station_delays_model.csv
+source: station_delays_clean.csv (untouched)
+
+journeys : 796
+rows     : 13844  (raw: 13844)
+trains   : 20
+dates    : 47  (2026-05-01 .. 2026-06-20)
+
+missing values BEFORE (raw columns, preserved as-is):
+  platform.................... 44
+  scheduled_arrival........... 796
+  actual_arrival.............. 940
+  scheduled_departure......... 796
+  actual_departure............ 3200
+  arrival_delay_minutes....... 940
+  departure_delay_minutes..... 3200
+
+missing values AFTER in model columns:
+  arrival_delay_model....... 0
+  departure_delay_model..... 0
+
+imputation breakdown (arrival_delay_status / departure_delay_status):
+  observed................ arrival:  12904   departure:  10644
+  imputed_same_station.... arrival:     16   departure:   1777
+  imputed_locf............ arrival:    127   departure:    127
+  imputed_default......... arrival:      1   departure:    500
+  structural.............. arrival:    796   departure:    796
+  total imputed (arrival).... 144
+  total imputed (departure). 2404
+
+target validation:
+  target mismatches vs raw destination arrival: 0
+  destination arrival imputed anywhere: 0 (hard-asserted)
+
+duplicate checks:
+  duplicate (train, date, station_code): 0
+  duplicate (train, date, station_sequence): 0
+
+target / extreme-delay journeys:
+  target == 0 ............. 334
+  target < 0 (early) ...... 1
+  target > 60 ............. 80
+  target > 300 ............ 15
+  target > 600 ............ 7
+  target max .............. 1093
+
+negative observed delays preserved: raw=8, model columns=8 (+1 negative imputed value inherited from a negative causal source)
+
+all hard assertions passed.

@@ -1,0 +1,61 @@
+JOURNEY SPLIT REPORT - journey_split.csv
+unit: journey_id | stratified on delay bins | seed used: 42
+
+sizes:
+  train  journeys= 557 (70.0%)   station rows=  9459 (68.3%)
+  val    journeys= 119 (14.9%)   station rows=  2144 (15.5%)
+  test   journeys= 120 (15.1%)   station rows=  2241 (16.2%)
+
+target_destination_delay per split (journey level):
+       count  mean  median    std  min     max
+split                                         
+train    557  28.8     3.0  101.9 -4.0  1093.0
+val      119  29.4     3.0  102.9  0.0  1009.0
+test     120  24.5     2.0   96.9  0.0   979.0
+
+delay-bin counts per split:
+split            train  val  test
+delay_bin                        
+on_time(<=0)       234   50    51
+minor(0-15]        195   42    42
+moderate(15-60]     71   15    16
+high(60-300]        46   10     9
+severe(300-600]      6    1     1
+extreme(>600)        5    1     1
+
+severe/extreme journeys per split:
+  train  >300 min: 11   >600 min:  5
+  val    >300 min:  2   >600 min:  1
+  test   >300 min:  2   >600 min:  1
+
+train-number coverage (journeys per split):
+split         train  val  test
+train_number                  
+12001            32    4     7
+12002            31    5     9
+12009            26    8     6
+12010            27    7     6
+12301            26    8     5
+12302            33    2     2
+12431            14    2     3
+12432            10    1     4
+12621            32   10     5
+12622            35    6     5
+12625            28    7     9
+12626            27    7     8
+12627            27    8     8
+12628            33    6     7
+12657            30    2     6
+12658            23    9     8
+12723            31    7     6
+12724            30   11     2
+12951            35    3     5
+12952            27    6     9
+  trains present in all three splits: 20 / 20
+
+integrity proofs:
+  journeys assigned exactly once: True (796 assignments for 796 journeys)
+  journeys in more than one split: 0
+  set(train) & set(val) & set(test) pairwise overlap: 0
+  every station row inherits its journey's split: True
+  rows train+val+test = 13844 of 13844
