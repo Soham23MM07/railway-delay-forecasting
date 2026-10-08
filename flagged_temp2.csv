@@ -1,0 +1,54 @@
+train_number,journey_date,n_rows,pct_zero_arrival_delay,sched_eq_actual_arrival,train_name
+12009,2026-06-21,8,1.0,1.0,Ahmedabad Shatabdi Express
+12009,2026-06-28,8,1.0,1.0,Ahmedabad Shatabdi Express
+12009,2026-07-05,8,1.0,1.0,Ahmedabad Shatabdi Express
+12009,2026-07-12,8,1.0,1.0,Ahmedabad Shatabdi Express
+12010,2026-06-21,8,1.0,1.0,Mumbai Central Shatabdi Express
+12010,2026-06-28,8,1.0,1.0,Mumbai Central Shatabdi Express
+12010,2026-07-05,8,1.0,1.0,Mumbai Central Shatabdi Express
+12010,2026-07-12,8,1.0,1.0,Mumbai Central Shatabdi Express
+12010,2026-07-19,8,1.0,1.0,Mumbai Central Shatabdi Express
+12301,2026-06-21,8,1.0,1.0,New Delhi Rajdhani Express
+12301,2026-06-28,8,1.0,1.0,New Delhi Rajdhani Express
+12301,2026-07-05,8,1.0,1.0,New Delhi Rajdhani Express
+12301,2026-07-12,8,1.0,1.0,New Delhi Rajdhani Express
+12301,2026-07-19,8,1.0,1.0,New Delhi Rajdhani Express
+12302,2026-06-26,8,1.0,1.0,Howrah Rajdhani Express
+12302,2026-07-03,8,1.0,1.0,Howrah Rajdhani Express
+12302,2026-07-10,8,1.0,1.0,Howrah Rajdhani Express
+12302,2026-07-17,8,1.0,1.0,Howrah Rajdhani Express
+12431,2026-06-21,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-06-22,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-06-24,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-06-27,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-06-28,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-06-29,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-07-01,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-07-04,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-07-05,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-07-06,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-07-08,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-07-11,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-07-12,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-07-13,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-07-15,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-07-18,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-07-19,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12431,2026-07-20,20,1.0,1.0,Hazrat Nizamuddin Rajdhani Express
+12432,2026-06-22,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-06-25,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-06-26,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-06-27,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-06-29,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-07-02,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-07-03,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-07-04,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-07-06,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-07-09,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-07-10,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-07-11,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-07-13,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-07-16,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-07-17,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-07-18,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express
+12432,2026-07-20,20,1.0,1.0,Thiruvananthapuram Central Rajdhani Express

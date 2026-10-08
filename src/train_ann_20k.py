@@ -1,22 +1,23 @@
-"""LSTM V2 = LSTM V1 + direct current-state skip connection. Nothing else.
+"""Dense-only ablation: LSTM V2 minus the entire sequence/LSTM branch.
 
 Reads  : data/processed/station_delays_model.csv
          data/processed/journey_split.csv            (frozen)
-Writes : data/processed/lstm_v2_report.txt
+Writes : data/processed/dense_ablation_report.txt
 
-Controlled experiment: identical to train_lstm_baseline.py (V1) in data,
-split, prefix samples, features, scaling, padding/masking, LSTM(32,
-dropout=0.1), Dense(16, relu), Dropout(0.1), Huber(delta=10), Adam(1e-3),
-callbacks, seed, batch size and max epochs. The ONLY change: the five
-already-scaled sequence-feature values of the CURRENT station k are also fed
-directly into the dense head, bypassing the recurrent bottleneck:
+Research question: does the full journey sequence add predictive value
+beyond the current station state and route context?
 
-    prefix sequence -> Masking -> LSTM(32) ----\
-    current station k features (5, scaled) ----+-> Concat -> Dense(16, relu)
+This is an ablation, not a new model. Removed vs V2: sequence input,
+Masking, LSTM(32), and the LSTM representation in the concatenation.
+Everything else is identical to train_lstm_v2.py:
+
+    current station k features (5, scaled) ---\
+                                               +-> Concat -> Dense(16, relu)
     context: total/remaining distance (2) ----/       -> Dropout(0.1) -> Dense(1)
 
-Test set is evaluated exactly once, after early stopping restored the best
-validation weights.
+Same dataset, split, samples, scaling (train-only fit, flags unscaled),
+Huber(delta=10), Adam(1e-3), callbacks, seed 42, batch 64, max 200 epochs.
+Test set evaluated exactly once after early stopping restores best weights.
 """
 
 import os
@@ -36,27 +37,29 @@ from keras import layers
 from create_journey_split import merge_split
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-REPORT_TXT = PROJECT_ROOT / "data" / "processed" / "lstm_v2_report.txt"
+REPORT_TXT = PROJECT_ROOT / "data" / "processed" / "dense_ablation_report.txt"
 
 SEED = 42
-PAD_VALUE = -999.0
 TARGET = "target_destination_delay"
 
 SEQ_CONT = ["arrival_delay_model", "departure_delay_model", "journey_completion"]
 SEQ_FLAGS = ["arrival_was_imputed", "departure_was_imputed"]
-SEQ_FEATURES = SEQ_CONT + SEQ_FLAGS
+CUR_FEATURES = SEQ_CONT + SEQ_FLAGS          # identical to V2's current-state branch
 CTX_FEATURES = ["total_distance", "remaining_distance"]
 
 # Frozen benchmarks - never recomputed.
 FROZEN = {
     "val": {"C_xgboost(frozen)": {"MAE": 20.50, "RMSE": 53.68, "R2": 0.8482},
-            "D_lstm_v1(frozen)": {"MAE": 20.97, "RMSE": 54.26, "R2": 0.8449}},
+            "D_lstm_v1(frozen)": {"MAE": 20.97, "RMSE": 54.26, "R2": 0.8449},
+            "E_lstm_v2(frozen)": {"MAE": 20.69, "RMSE": 53.62, "R2": 0.8485}},
     "test": {"C_xgboost(frozen)": {"MAE": 18.37, "RMSE": 53.65, "R2": 0.8320},
-             "D_lstm_v1(frozen)": {"MAE": 19.34, "RMSE": 55.32, "R2": 0.8213}},
+             "D_lstm_v1(frozen)": {"MAE": 19.34, "RMSE": 55.32, "R2": 0.8213},
+             "E_lstm_v2(frozen)": {"MAE": 18.79, "RMSE": 53.54, "R2": 0.8327}},
 }
 FROZEN_TEST_BUCKETS = pd.DataFrame({
     "C_xgboost(frozen)": [24.35, 24.34, 17.87, 15.37, 6.98],
     "D_lstm_v1(frozen)": [25.64, 23.63, 18.51, 15.64, 10.77],
+    "E_lstm_v2(frozen)": [25.74, 24.85, 18.27, 13.93, 8.21],
 }, index=["0-20%", "20-40%", "40-60%", "60-80%", "80-100%"])
 
 
@@ -84,27 +87,22 @@ def fit_scalers(df: pd.DataFrame):
 
 
 def build_samples(df, seq_scaler, ctx_scaler):
+    """Identical sample generation and ordering as V2, minus padded tensors."""
     scaled = df.copy()
     scaled[SEQ_CONT] = seq_scaler.transform(scaled[SEQ_CONT])
     scaled[CTX_FEATURES] = ctx_scaler.transform(scaled[CTX_FEATURES])
 
     nondest = scaled[scaled["is_destination"] == 0]
-    max_len = int(nondest.groupby("journey_id").size().max())
-
     out = {}
     for split in ["train", "val", "test"]:
-        seqs, curs, ctxs, ys, meta = [], [], [], [], []
+        curs, ctxs, ys, meta = [], [], [], []
         part = nondest[nondest["split"] == split]
         for jid, sub in part.groupby("journey_id", sort=False):
-            feats = sub[SEQ_FEATURES].to_numpy(dtype=np.float32)
+            feats = sub[CUR_FEATURES].to_numpy(dtype=np.float32)
             ctx = sub[CTX_FEATURES].to_numpy(dtype=np.float32)
             tgt = float(sub[TARGET].iloc[0])
             for k in range(len(sub)):
-                pad = np.full((max_len, len(SEQ_FEATURES)), PAD_VALUE,
-                              dtype=np.float32)
-                pad[: k + 1] = feats[: k + 1]
-                seqs.append(pad)
-                curs.append(feats[k])          # V2: current station k, scaled
+                curs.append(feats[k])        # same scaled station-k vector as V2
                 ctxs.append(ctx[k])
                 ys.append(tgt)
                 meta.append((jid, int(sub["station_sequence"].iloc[k]),
@@ -112,10 +110,9 @@ def build_samples(df, seq_scaler, ctx_scaler):
         m = pd.DataFrame(meta, columns=["journey_id", "station_sequence",
                                         "position_frac"])
         m["train_number"] = m["journey_id"].str.split("_").str[0]
-        out[split] = {"X_seq": np.stack(seqs), "X_cur": np.stack(curs),
-                      "X_ctx": np.stack(ctxs),
+        out[split] = {"X_cur": np.stack(curs), "X_ctx": np.stack(ctxs),
                       "y": np.array(ys, dtype=np.float32), "meta": m}
-    return out, max_len
+    return out
 
 
 def naive_predictions(df, split):
@@ -125,21 +122,18 @@ def naive_predictions(df, split):
             part[TARGET].to_numpy())
 
 
-def build_model(max_len: int) -> keras.Model:
-    seq_in = keras.Input(shape=(max_len, len(SEQ_FEATURES)), name="sequence")
-    x = layers.Masking(mask_value=PAD_VALUE)(seq_in)
-    x = layers.LSTM(32, dropout=0.1)(x)
-    cur_in = keras.Input(shape=(len(SEQ_FEATURES),), name="current_state")
+def build_model() -> keras.Model:
+    cur_in = keras.Input(shape=(len(CUR_FEATURES),), name="current_state")
     ctx_in = keras.Input(shape=(len(CTX_FEATURES),), name="context")
-    h = layers.Concatenate()([x, cur_in, ctx_in])
+    h = layers.Concatenate()([cur_in, ctx_in])
     h = layers.Dense(16, activation="relu")(h)
     h = layers.Dropout(0.1)(h)
     out = layers.Dense(1, name="final_delay")(h)
-    model = keras.Model([seq_in, cur_in, ctx_in], out)
+    model = keras.Model([cur_in, ctx_in], out)
     model.compile(optimizer=keras.optimizers.Adam(1e-3),
                   loss=keras.losses.Huber(delta=10.0),
-                  metrics=["mae"])  
-    return model    
+                  metrics=["mae"])
+    return model
 
 
 def metrics(y_true, y_pred) -> dict:
@@ -175,9 +169,15 @@ def main():
 
     df = load_frame()
     seq_scaler, ctx_scaler, n_fit = fit_scalers(df)
-    data, max_len = build_samples(df, seq_scaler, ctx_scaler)
+    data = build_samples(df, seq_scaler, ctx_scaler)
 
-    model = build_model(max_len)
+    model = build_model()
+
+    # proof: no sequence branch anywhere in the graph
+    layer_types = [type(l).__name__ for l in model.layers]
+    assert "LSTM" not in layer_types and "Masking" not in layer_types
+    assert all(len(l.output.shape) == 2 for l in model.layers), \
+        "a layer carries a time dimension"
 
     es = keras.callbacks.EarlyStopping(monitor="val_mae", mode="min",
                                        patience=20, restore_best_weights=True)
@@ -185,10 +185,9 @@ def main():
                                             factor=0.5, patience=8,
                                             min_lr=1e-5)
     hist = model.fit(
-        [data["train"]["X_seq"], data["train"]["X_cur"], data["train"]["X_ctx"]],
-        data["train"]["y"],
-        validation_data=([data["val"]["X_seq"], data["val"]["X_cur"],
-                          data["val"]["X_ctx"]], data["val"]["y"]),
+        [data["train"]["X_cur"], data["train"]["X_ctx"]], data["train"]["y"],
+        validation_data=([data["val"]["X_cur"], data["val"]["X_ctx"]],
+                         data["val"]["y"]),
         epochs=200, batch_size=64, callbacks=[es, rlr], verbose=2)
     best_epoch = int(np.argmin(hist.history["val_mae"])) + 1
 
@@ -196,33 +195,30 @@ def main():
     for s in ["val", "test"]:
         naive_arr, naive_dep, y_naive = naive_predictions(df, s)
         assert np.allclose(data[s]["y"], y_naive)
-        lstm_pred = model.predict(
-            [data[s]["X_seq"], data[s]["X_cur"], data[s]["X_ctx"]],
-            verbose=0).ravel()
+        p = model.predict([data[s]["X_cur"], data[s]["X_ctx"]],
+                          verbose=0).ravel()
         preds[s] = {"A_naive_arrival": naive_arr,
                     "B_naive_departure": naive_dep,
-                    "E_lstm_v2": lstm_pred}
+                    "F_dense_only": p}
 
     lines = []
     add = lines.append
-    add("LSTM V2 REPORT - V1 + direct current-state skip connection")
+    add("DENSE-ONLY ABLATION REPORT - LSTM V2 minus the sequence/LSTM branch")
     add(f"backend: keras {keras.__version__} ({keras.backend.backend()}) | seed {SEED}")
-    add(f"only change vs V1: scaled station-k features {SEQ_FEATURES}")
-    add("fed directly into the dense head alongside LSTM output and context.")
     add("")
+    add(f"current-state features (5): {', '.join(CUR_FEATURES)}  [scaled as in V2]")
+    add(f"context features (2): {', '.join(CTX_FEATURES)}  [scaled as in V2]")
     add(f"prefix samples: train={len(data['train']['y'])} "
         f"val={len(data['val']['y'])} test={len(data['test']['y'])}")
-    add(f"max sequence length: {max_len} | padding: post, PAD_VALUE={PAD_VALUE}")
     add(f"scalers fit on {n_fit} train non-destination rows only (asserted)")
-    add(f"model parameters: {model.count_params()} (V1: 5441) | best epoch: {best_epoch}")
     add("")
-
-    add("training history (epoch, train mae, val mae, lr):")
-    h = hist.history
-    for e in range(len(h["mae"])):
-        star = "  <- best" if e + 1 == best_epoch else ""
-        add(f"  {e+1:3d}  {h['mae'][e]:8.3f}  {h['val_mae'][e]:8.3f}  "
-            f"{h['learning_rate'][e]:.6f}{star}")
+    add("proof sequence branch is absent:")
+    add(f"  layers: {layer_types}")
+    add("  asserted: no LSTM, no Masking, no layer with a time dimension;")
+    add("  model inputs are only (5,) current-state and (2,) context vectors")
+    add("")
+    add(f"model parameters: {model.count_params()} "
+        f"(V1: 5441, V2: 5521) | best epoch: {best_epoch} of {len(hist.history['mae'])} run")
     add("")
 
     for s in ["val", "test"]:
@@ -250,9 +246,9 @@ def main():
     for s in ["val", "test"]:
         m = data[s]["meta"].copy()
         m["y"] = data[s]["y"]
-        m["pred"] = preds[s]["E_lstm_v2"]
+        m["pred"] = preds[s]["F_dense_only"]
         m["abs_err"] = (m["y"] - m["pred"]).abs()
-        add(f"--- 12 worst {s.upper()} errors (LSTM V2) ---")
+        add(f"--- 12 worst {s.upper()} errors (dense-only) ---")
         add(m.nlargest(12, "abs_err")[
             ["journey_id", "station_sequence", "position_frac", "y", "pred",
              "abs_err"]].round(2).to_string(index=False))

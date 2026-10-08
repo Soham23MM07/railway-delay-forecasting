@@ -1,8 +1,11 @@
-"""Build the trustworthy modeling dataset from the raw clean source.
+"""Build the trustworthy modeling dataset from the EXPANDED raw source
+(original 796 journeys + new June21-July20 collection, minus 53 flagged
+missing-GPS-tracking pairs). Parallel "_20k" pipeline - the original
+prepare_modeling_dataset.py / frozen 796-journey results are untouched.
 
-Reads  : data/raw/station_delays_clean.csv   (never modified)
-Writes : data/processed/station_delays_model.csv
-         data/processed/preparation_report.txt
+Reads  : data/raw/station_delays_clean_20k+.csv   (never modified)
+Writes : data/processed/station_delays_model_20k+.csv
+         data/processed/preparation_report_20k+.txt
 
 Rules (approved):
 - Original arrival_delay_minutes / departure_delay_minutes are kept untouched.
@@ -31,12 +34,10 @@ import numpy as np
 import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-print('Project_ROOT',PROJECT_ROOT)
-RAW_PATH = PROJECT_ROOT / "data" / "raw" / "station_delays_clean.csv"
-print("Raw",RAW_PATH)
+RAW_PATH = PROJECT_ROOT / "data" / "raw" / "station_delays_clean_20k+.csv"
 
-OUT_PATH = PROJECT_ROOT / "data" / "processed" / "station_delays_model.csv"
-REPORT_PATH = PROJECT_ROOT / "data" / "processed" / "preparation_report.txt"
+OUT_PATH = PROJECT_ROOT / "data" / "processed" / "station_delays_model_20k+.csv"
+REPORT_PATH = PROJECT_ROOT / "data" / "processed" / "preparation_report_20k+.txt"
 
 OBSERVED = "observed"
 SAME_STATION = "imputed_same_station"
@@ -322,5 +323,5 @@ def main():
         print(f"  {c} ({df[c].dtype})")
 
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()

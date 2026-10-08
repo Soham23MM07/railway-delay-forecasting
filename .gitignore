@@ -37,3 +37,7 @@ logs/
 data/**/*.csv
 !data/processed/journey_split.csv
 src/data/
+
+# data_collection.py runtime state (per-key daily usage tracker, run log)
+data/raw/key_usage.json
+data/raw/collection_log.txt

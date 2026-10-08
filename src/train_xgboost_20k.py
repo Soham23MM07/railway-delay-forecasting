@@ -24,10 +24,10 @@ import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from xgboost import XGBRegressor
 
-from create_journey_split import merge_split
+from create_journey_split_20k import merge_split
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-REPORT_TXT = PROJECT_ROOT / "data" / "processed" / "xgboost_baseline_report.txt"
+REPORT_TXT = PROJECT_ROOT / "data" / "processed" / "xgboost_20k+_report.txt"
 
 TARGET = "target_destination_delay"
 SEED = 42

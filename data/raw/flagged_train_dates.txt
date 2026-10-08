@@ -1,0 +1,28 @@
+FLAGGED (train_number, journey_date) PAIRS - suspected missing GPS tracking data
+=================================================================================
+
+Pattern detected: scheduled_arrival == actual_arrival on ~95% of stations for
+the whole journey, producing fake exact-zero delays throughout. Confirmed
+different from these same trains' behavior in the original May-June dataset
+(where they showed normal, realistic delay variation), so this is specific
+to these dates, not how these trains normally behave.
+
+train_number  journey_date  train_name                                    n_rows  pct_zero_delay  pct_sched_eq_actual
+12431         2026-06-21    Hazrat Nizamuddin Rajdhani Express             21      95%             95%
+12431         2026-06-22    Hazrat Nizamuddin Rajdhani Express             21      95%             95%
+12431         2026-06-24    Hazrat Nizamuddin Rajdhani Express             21      95%             95%
+12431         2026-06-27    Hazrat Nizamuddin Rajdhani Express             21      95%             95%
+12431         2026-06-28    Hazrat Nizamuddin Rajdhani Express             21      95%             95%
+12431         2026-06-29    Hazrat Nizamuddin Rajdhani Express             21      95%             95%
+12431         2026-07-01    Hazrat Nizamuddin Rajdhani Express             21      95%             95%
+12432         2026-06-22    Thiruvananthapuram Central Rajdhani Express    21      95%             95%
+12432         2026-06-25    Thiruvananthapuram Central Rajdhani Express    21      95%             95%
+12432         2026-06-26    Thiruvananthapuram Central Rajdhani Express    21      95%             95%
+12432         2026-06-27    Thiruvananthapuram Central Rajdhani Express    21      95%             95%
+12432         2026-06-29    Thiruvananthapuram Central Rajdhani Express    21      95%             95%
+12432         2026-07-02    Thiruvananthapuram Central Rajdhani Express    21      95%             95%
+
+TOTAL FLAGGED: 13 (train, date) pairs out of 223 collected in this batch.
+
+NEXT STEP (per user instruction): re-fetch these specific 13 (train, date)
+pairs to test whether real tracking data is available now.
